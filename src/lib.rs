@@ -1,9 +1,35 @@
 use reqwest::Client;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-use url::Url;
+use url::{ParseError, Url};
+use serde_json::Error as JsonError;
 
 pub const PATH_PREFIX: &str = "/v1/data";
+
+#[derive(Debug)]
+pub enum Error {
+    JsonError(JsonError),
+    UrlError(ParseError),
+    HttpError,
+}
+
+impl From<JsonError> for Error {
+    fn from(inner: JsonError) -> Self {
+        Self::JsonError(inner)
+    }
+}
+
+impl From<ParseError> for Error {
+    fn from(inner: ParseError) -> Self {
+        Self::UrlError(inner)
+    }
+}
+
+impl From<::reqwest::Error> for Error {
+    fn from(_: reqwest::Error) -> Self {
+        Self::HttpError
+    }
+}
 
 #[derive(Serialize)]
 struct Input<I: Serialize> {
@@ -32,20 +58,18 @@ impl OpenPolicyAgentClient {
         &self,
         policy: &str,
         input: &I,
-    ) -> Result<Option<O>, ()> {
+    ) -> Result<Option<O>, Error> {
         let policy = policy.replace(".", "/");
         let path = self
             .url
-            .join(PATH_PREFIX )
-            .map_err(|_| ())?
-            .join(&policy)
-            .map_err(|_| ())?;
+            .join(PATH_PREFIX )?
+            .join(&policy)?;
 
         let input = Input { input };
 
         let req = self.client.get(path).json(&input);
-        let response = req.send().await.map_err(|_| ())?;
-        let output: Output<O> = response.json().await.map_err(|_| ())?;
+        let response = req.send().await?;
+        let output: Output<O> = response.json().await?;
 
         Ok(output.result)
     }
@@ -58,7 +82,7 @@ mod test {
     use serde::{Deserialize, Serialize};
 
     #[test]
-    fn input_serialization() -> Result<(), ()>{
+    fn input_serialization() -> Result<(), Error>{
         #[derive(Serialize)]
         struct MyInput {
             user: String,
@@ -77,7 +101,7 @@ mod test {
             input,
         };
 
-        let json = serde_json::to_string(&input).map_err(|_|())?;
+        let json = serde_json::to_string(&input)?;
 
         println!("{}", json);
 
