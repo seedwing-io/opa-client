@@ -41,12 +41,16 @@ struct Output<O> {
     result: Option<O>,
 }
 
+/// Client to communicate and interact with an OpenPolicyAgent (OPA) server
+/// over HTTP(S).
 pub struct OpenPolicyAgentClient {
     client: Client,
     url: Url,
 }
 
 impl OpenPolicyAgentClient {
+
+    /// Construct a new client given an endpoint.
     pub fn new(url: Url) -> Self {
         Self {
             client: Client::new(),
@@ -54,6 +58,7 @@ impl OpenPolicyAgentClient {
         }
     }
 
+    /// Query a policy given `input` data and a policy path.
     pub async fn query<I: Serialize, O: DeserializeOwned>(
         &self,
         policy: &str,

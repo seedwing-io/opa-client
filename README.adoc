@@ -5,3 +5,9 @@ Client intended to work with an OPA server over HTTP(S).
 ## Policy Querying
 
 Initial work is towards policy querying (using the *Data API*), not policy or document management within an OPA server.
+
+## Building
+
+Currently integration tests use (a fork of) `testcontainers` crate, which requires Docker or Podman to be running.
+The setup as it stands today is through using Unix domain sockets.
+If using some non-default socket location, `DOCKER_SOCKET` environment variable should be set, pointing to the control endpoint for Docker or Podman.
