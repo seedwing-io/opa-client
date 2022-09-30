@@ -10,3 +10,12 @@ reqwest = { version = "0.11.12", features = [ "json"] }
 url = "2.3.1"
 serde = { version = "1.0.145", features = [ "derive" ] }
 serde_json = "1.0.85"
+
+[dev-dependencies]
+tokio = { version = "1", features = [ "macros" ]  }
+#testcontainers = { path = "../../testcontainers-rs/testcontainers", version = "0.14.0", features = [ "experimental"] }
+testcontainers = { git = "https://github.com/bobmcwhirter/testcontainers-rs/", branch = "expose_bollard_ctor", features = ["experimental"]}
+bollard = { version = "0.13.0" }
+bollard-stubs = "=1.42.0-rc.3"
+env_logger = "0.9.1"
+
