@@ -1,6 +1,7 @@
 use crate::images::simple_opa_server;
 
 use bollard::{Docker, API_DEFAULT_VERSION};
+use opa_client::http::OpenPolicyAgentHttpClient;
 use opa_client::{Error, OpenPolicyAgentClient};
 use serde::Serialize;
 use std::env;
@@ -25,7 +26,7 @@ async fn test_query() {
         let docker = Docker::connect_with_socket(&socket, 120, API_DEFAULT_VERSION).unwrap();
         let container_client = Http::new(docker);
         let _opa = container_client.run(simple_opa_server()).await;
-        let client = OpenPolicyAgentClient::new(opa_server_url);
+        let client = OpenPolicyAgentHttpClient::new(opa_server_url);
 
         let input = MyInput {
             user: "bob".to_string(),
