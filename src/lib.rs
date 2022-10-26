@@ -1,6 +1,8 @@
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
+use serde_json::Error as JsonError;
+use thiserror::Error;
 
 pub mod http;
 pub mod local_wasm;
@@ -20,10 +22,20 @@ pub struct Output<O> {
     result: Option<O>,
 }
 
-#[derive(Debug)]
-pub enum Error {
+#[derive(Error, Debug)]
+pub enum OpaClientError {
+    #[error("OPA Policy Error")]
     PolicyError,
+    #[error("OPA Parse Error")]
+    ParseError,
+    #[error("OPA JSON Error")]
     JsonError,
+}
+
+impl From<JsonError> for OpaClientError {
+    fn from(_inner: JsonError) -> Self {
+        Self::JsonError
+    }
 }
 
 #[async_trait(?Send)]
@@ -33,5 +45,5 @@ pub trait OpenPolicyAgentClient {
         &mut self,
         input: &I,
         data: &D,
-    ) -> Result<Option<O>, Error>;
+    ) -> Result<Option<O>, OpaClientError>;
 }

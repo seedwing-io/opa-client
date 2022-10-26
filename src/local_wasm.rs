@@ -1,4 +1,4 @@
-use crate::{Error as OpaError, OpenPolicyAgentClient};
+use crate::{OpaClientError, OpenPolicyAgentClient};
 use async_trait::async_trait;
 use policy_evaluator::burrego::Evaluator;
 use serde::de::DeserializeOwned;
@@ -21,7 +21,7 @@ impl<'a> OpenPolicyAgentWasmClient<'a> {
 
 #[async_trait(?Send)]
 impl<'a> OpenPolicyAgentClient for OpenPolicyAgentWasmClient<'a> {
-    async fn query<I, D, O>(&mut self, input: &I, data: &D) -> Result<Option<O>, OpaError>
+    async fn query<I, D, O>(&mut self, input: &I, data: &D) -> Result<Option<O>, OpaClientError>
     where
         I: Serialize,
         D: Serialize,
@@ -29,16 +29,19 @@ impl<'a> OpenPolicyAgentClient for OpenPolicyAgentWasmClient<'a> {
     {
         println!("Evaluating:");
 
-        let entrypoint_id = self.evaluator.entrypoint_id(&self.entry_point).unwrap();
+        let entrypoint_id = self
+            .evaluator
+            .entrypoint_id(&self.entry_point)
+            .map_err(|_| OpaClientError::PolicyError)?;
 
         let r: serde_json::Value = self
             .evaluator
             .evaluate(
                 entrypoint_id,
-                &serde_json::value::to_value(input).unwrap(),
-                &serde_json::value::to_value(data).unwrap(),
+                &serde_json::value::to_value(input)?,
+                &serde_json::value::to_value(data)?,
             )
-            .unwrap();
+            .map_err(|_| OpaClientError::PolicyError)?;
 
         println!("value: {:?}", r);
         let val = r[0].get("result").unwrap();
@@ -69,7 +72,7 @@ mod tests {
         let data: serde_json::Value =
             serde_json::from_str("{}").expect("data json does not have correct format.");
 
-        let result: Result<Option<bool>, OpaError> = client.query(&input, &data).await;
+        let result: Result<Option<bool>, OpaClientError> = client.query(&input, &data).await;
         println!("Result: {:?}", result);
 
         assert_eq!(1, 1);

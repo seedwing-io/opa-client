@@ -2,7 +2,7 @@ use crate::images::simple_opa_server;
 
 use bollard::{Docker, API_DEFAULT_VERSION};
 use opa_client::http::OpenPolicyAgentHttpClient;
-use opa_client::{Error, OpenPolicyAgentClient};
+use opa_client::{OpaClientError, OpenPolicyAgentClient};
 use serde::Serialize;
 use std::env;
 use testcontainers::clients::Http;
@@ -38,7 +38,7 @@ async fn test_query() {
 
         let data = MyData {};
 
-        let result: Result<Option<bool>, Error> = client.query(&input, &data).await;
+        let result: Result<Option<bool>, OpaClientError> = client.query(&input, &data).await;
         assert_eq!(true, result.unwrap().unwrap());
 
         let input = MyInput {
@@ -46,7 +46,7 @@ async fn test_query() {
             groups: vec!["short".to_string(), "virginia".to_string()],
         };
 
-        let result: Result<Option<bool>, Error> = client.query(&input, &data).await;
+        let result: Result<Option<bool>, OpaClientError> = client.query(&input, &data).await;
         assert!(result.is_ok());
         assert!(result.unwrap().is_none());
     }

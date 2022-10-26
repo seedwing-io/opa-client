@@ -1,35 +1,21 @@
-use crate::{Error as OpaError, Input, OpenPolicyAgentClient, Output};
+use crate::{Input, OpaClientError, OpenPolicyAgentClient, Output};
 use async_trait::async_trait;
 use reqwest::Client;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use serde_json::Error as JsonError;
 use url::{ParseError, Url};
 
 pub const PATH_PREFIX: &str = "/v1/data/";
 
-#[derive(Debug)]
-pub enum Error {
-    JsonError(JsonError),
-    UrlError(ParseError),
-    HttpError,
-}
-
-impl From<JsonError> for Error {
-    fn from(inner: JsonError) -> Self {
-        Self::JsonError(inner)
+impl From<ParseError> for OpaClientError {
+    fn from(_inner: ParseError) -> Self {
+        Self::ParseError
     }
 }
 
-impl From<ParseError> for Error {
-    fn from(inner: ParseError) -> Self {
-        Self::UrlError(inner)
-    }
-}
-
-impl From<::reqwest::Error> for Error {
+impl From<::reqwest::Error> for OpaClientError {
     fn from(_: reqwest::Error) -> Self {
-        Self::HttpError
+        Self::PolicyError
     }
 }
 
@@ -59,20 +45,23 @@ impl<'a> OpenPolicyAgentClient for OpenPolicyAgentHttpClient<'a> {
         &mut self,
         input: &I,
         _data: &D,
-    ) -> Result<Option<O>, OpaError> {
+    ) -> Result<Option<O>, OpaClientError> {
         let policy = self.policy.strip_prefix('/').unwrap_or(self.policy);
         let path = self
             .url
             .join(PATH_PREFIX)
-            .map_err(|_| OpaError::PolicyError)?
+            .map_err(|_| OpaClientError::PolicyError)?
             .join(policy)
-            .map_err(|_| OpaError::JsonError)?;
+            .map_err(|_| OpaClientError::JsonError)?;
 
         let input = Input { input };
 
         let req = self.client.post(path).json(&input);
-        let response = req.send().await.map_err(|_| OpaError::PolicyError)?;
-        let output: Output<O> = response.json().await.map_err(|_| OpaError::PolicyError)?;
+        let response = req.send().await.map_err(|_| OpaClientError::PolicyError)?;
+        let output: Output<O> = response
+            .json()
+            .await
+            .map_err(|_| OpaClientError::PolicyError)?;
 
         Ok(output.result)
     }
@@ -90,7 +79,7 @@ mod test {
     }
 
     #[test]
-    fn input_serialization() -> Result<(), Error> {
+    fn input_serialization() -> Result<(), OpaClientError> {
         let input = MyInput {
             user: "bob".to_string(),
             groups: vec!["tall".to_string(), "virginia".to_string()],
