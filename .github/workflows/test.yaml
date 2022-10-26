@@ -14,9 +14,11 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
+      - name: Setup podman
+        run: .github/workflows/scripts/podman-setup.sh
 
       - name: Build
         run: cargo b --verbose
 
       - name: Run Tests
-        run: cargo t --verbose -- --show-output
+        run: DOCKER_SOCKET="unix:///run/user/1001/podman/podman.sock" cargo t -- --show-output

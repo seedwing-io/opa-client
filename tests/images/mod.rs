@@ -23,7 +23,7 @@ pub fn simple_opa_server() -> RunnableImage<GenericImage> {
         .with_volume((
             example.to_str().unwrap(),
             //"/Users/bob/repos/seedwing-io/opa-client/example/",
-            "/example",
+            "/example:Z",
         ))
         .with_mapped_port((8181, 8181))
 
