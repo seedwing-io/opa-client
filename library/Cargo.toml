@@ -1,0 +1,25 @@
+[package]
+name = "opa-client"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = { version = "0.11.12", features = [ "json"] }
+url = "2.3.1"
+serde = { version = "1.0.145", features = [ "derive" ] }
+serde_json = "1.0.85"
+async-trait = "0.1.58"
+policy-evaluator = {git = "https://github.com/kubewarden/policy-evaluator"}
+k8s-openapi = { version = "0.16.0", default-features = false, features = ["v1_24"] }
+thiserror = "1.0.37"
+
+[dev-dependencies]
+tokio = { version = "1", features = [ "macros" ]  }
+#testcontainers = { path = "../../testcontainers-rs/testcontainers", version = "0.14.0", features = [ "experimental"] }
+testcontainers = { git = "https://github.com/bobmcwhirter/testcontainers-rs/", branch = "expose_bollard_ctor", features = ["experimental"]}
+bollard = { version = "0.13.0" }
+bollard-stubs = "=1.42.0-rc.3"
+env_logger = "0.9.1"
+
