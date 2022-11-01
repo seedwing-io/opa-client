@@ -11,3 +11,6 @@ Initial work is towards policy querying (using the *Data API*), not policy or do
 Currently integration tests use (a fork of) `testcontainers` crate, which requires Docker or Podman to be running.
 The setup as it stands today is through using Unix domain sockets.
 If using some non-default socket location, `DOCKER_SOCKET` environment variable should be set, pointing to the control endpoint for Docker or Podman.
+For podman on Linux this can be configured by running the
+link:.github/workflows/scripts/podman-setup.sh[podman-setup.sh]
+
