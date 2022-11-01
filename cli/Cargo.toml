@@ -1,0 +1,10 @@
+[package]
+name = "opa-client-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.0.13", features = ["derive"] }
+opa-client = { path = "../library", version = "0.1.0" }
+serde_json = "1.0.85"
+tokio = { version = "1", features = [ "macros" ]  }

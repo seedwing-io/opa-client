@@ -1,0 +1,50 @@
+# OPA Client Command Line Interface (CLI)
+
+Client intended to work with an OPA using wasm policy bundles.
+
+## Installing
+----
+$ cargo install --path .
+----
+
+## Usage
+----
+$ opa-client-cli --help
+opa-client-cli is a tool to execute OPA wasm policy modules
+
+Usage: opa-client-cli [OPTIONS] --wasm <WASM> --entry-point <ENTRY_POINT>
+
+Options:
+  -w, --wasm <WASM>                The wasm policy module
+  -e, --entry-point <ENTRY_POINT>  The entry_point/rule to be executed
+  -i, --input <INPUT>              The input file in json format (optional)
+  -d, --data <DATA>                The data file in json format (optional)
+  -h, --help                       Print help information
+  -V, --version                    Print version information
+----
+
+## Running installed binary
+----
+$ opa-client-cli --wasm ../library/example/license.wasm \
+                 --entry-point license/allow \
+                 --input ../library/example/licenses-input.txt
+----
+
+## Running with cargo
+----
+$ cargo r -- --wasm ../library/example/license.wasm \
+             --entry-point license/allow \
+             --input ../library/example/licenses-input.txt \
+             | jq
+----
+
+## Piping the input
+----
+$ cat ../library/example/licenses-input.txt | \
+      ../target/debug/opa-client-cli --wasm ../library/example/license.wasm \
+                                     --entry-point license/allow \
+                                     | jq
+{
+  "result": true
+}
+----

@@ -27,8 +27,6 @@ impl<'a> OpenPolicyAgentClient for OpenPolicyAgentWasmClient<'a> {
         D: Serialize,
         O: DeserializeOwned,
     {
-        println!("Evaluating:");
-
         let entrypoint_id = self
             .evaluator
             .entrypoint_id(&self.entry_point)
@@ -42,9 +40,7 @@ impl<'a> OpenPolicyAgentClient for OpenPolicyAgentWasmClient<'a> {
                 &serde_json::value::to_value(data)?,
             )
             .map_err(|_| OpaClientError::PolicyError)?;
-
-        println!("value: {:?}", r);
-        let val = r[0].get("result").unwrap();
+        let val = &r[0];
         Ok(Some(<O as Deserialize>::deserialize(val).unwrap()))
     }
 }
@@ -72,10 +68,9 @@ mod tests {
         let data: serde_json::Value =
             serde_json::from_str("{}").expect("data json does not have correct format.");
 
-        let result: Result<Option<bool>, OpaClientError> = client.query(&input, &data).await;
-        println!("Result: {:?}", result);
-
-        assert_eq!(1, 1);
+        let result: Result<Option<serde_json::Value>, OpaClientError> =
+            client.query(&input, &data).await;
+        assert_eq!(r#"{"result":true}"#, result.unwrap().unwrap().to_string());
     }
 
     fn to_array<T, const N: usize>(v: Vec<T>) -> [T; N] {
