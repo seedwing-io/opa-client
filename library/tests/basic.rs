@@ -29,7 +29,7 @@ async fn test_query() {
         let docker = Docker::connect_with_socket(&socket, 120, API_DEFAULT_VERSION).unwrap();
         let container_client = Http::new(docker);
         let _opa = container_client.run(simple_opa_server()).await;
-        let mut client = OpenPolicyAgentHttpClient::new(opa_server_url, "/basic/allow");
+        let mut client = OpenPolicyAgentHttpClient::new(opa_server_url);
 
         let input = MyInput {
             user: "bob".to_string(),
@@ -38,7 +38,8 @@ async fn test_query() {
 
         let data = MyData {};
 
-        let result: Result<Option<bool>, OpaClientError> = client.query(&input, &data).await;
+        let result: Result<Option<bool>, OpaClientError> =
+            client.query("/basic/allow", &input, &data).await;
         assert_eq!(true, result.unwrap().unwrap());
 
         let input = MyInput {
@@ -46,7 +47,8 @@ async fn test_query() {
             groups: vec!["short".to_string(), "virginia".to_string()],
         };
 
-        let result: Result<Option<bool>, OpaClientError> = client.query(&input, &data).await;
+        let result: Result<Option<bool>, OpaClientError> =
+            client.query("/basic/allow", &input, &data).await;
         assert!(result.is_ok());
         assert!(result.unwrap().is_none());
     }

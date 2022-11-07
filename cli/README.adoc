@@ -12,13 +12,14 @@ $ cargo install --path .
 $ opa-client-cli --help
 opa-client-cli is a tool to execute OPA wasm policy modules
 
-Usage: opa-client-cli [OPTIONS] --wasm <WASM> --entry-point <ENTRY_POINT>
+Usage: opa-client-cli [OPTIONS] --wasm <WASM>
 
 Options:
-  -w, --wasm <WASM>                The wasm policy module
+  -w, --wasm <WASM>                The OPA policy wasm module
   -e, --entry-point <ENTRY_POINT>  The entry_point/rule to be executed
   -i, --input <INPUT>              The input file in json format (optional)
   -d, --data <DATA>                The data file in json format (optional)
+  -p, --print-entrypoints          Print the entrypoints (rules) in the wasm module
   -h, --help                       Print help information
   -V, --version                    Print version information
 ----
@@ -47,4 +48,12 @@ $ cat ../library/example/licenses-input.txt | \
 {
   "result": true
 }
+----
+
+## Show entrypoints of wasm module
+----
+$ ./target/debug/opa-client-cli --wasm ../doctrine/build/osi.wasm --print-entrypoints
+entrypoints:
+name: osi_policy/not_osi, index: 1
+name: osi_policy/is_osi, index: 0
 ----

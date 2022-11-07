@@ -3,6 +3,7 @@ use opa_client::local_wasm::OpenPolicyAgentWasmClient;
 use opa_client::{OpaClientError, OpenPolicyAgentClient};
 use std::fs;
 use std::io::{self, BufRead};
+use std::process::exit;
 
 #[derive(Parser, Debug)]
 #[command(author,
@@ -13,22 +14,43 @@ struct Args {
     #[arg(short, long, help = "The OPA policy wasm module")]
     wasm: String,
 
-    #[arg(short, long, help = "The entry_point/rule to be executed")]
-    entry_point: String,
+    #[arg(
+        short,
+        long,
+        help = "The entry_point/rule to be executed",
+        required_unless_present("print_entrypoints")
+    )]
+    entry_point: Option<String>,
 
     #[arg(short, long, help = "The input file in json format (optional)")]
     input: Option<String>,
 
     #[arg(short, long, help = "The data file in json format (optional)")]
     data: Option<String>,
+
+    #[arg(short, long, help = "Print the entrypoints (rules) in the wasm module")]
+    print_entrypoints: bool,
 }
 
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
 
-    let wasm = fs::read(args.wasm).unwrap();
-    let mut client = OpenPolicyAgentWasmClient::new(&wasm, &args.entry_point);
+    let wasm = fs::read(&args.wasm).unwrap();
+    let mut client = OpenPolicyAgentWasmClient::new(&wasm);
+
+    if args.print_entrypoints {
+        let entrypoints = client.entrypoints();
+        if let Ok(e) = entrypoints {
+            println!("entrypoints:");
+            for (key, value) in &e {
+                println!("name: {}, index: {}", key, value);
+            }
+        } else {
+            println!("No entrypoints were found for {}", &args.wasm);
+        }
+        exit(1);
+    }
 
     let input_str = args
         .input
@@ -40,8 +62,9 @@ async fn main() {
     let data: serde_json::Value =
         serde_json::from_str(&data_str).expect("data json does not have correct format.");
 
-    let result: Result<Option<serde_json::Value>, OpaClientError> =
-        client.query(&input, &data).await;
+    let result: Result<Option<serde_json::Value>, OpaClientError> = client
+        .query(&args.entry_point.unwrap(), &input, &data)
+        .await;
     if result.is_ok() {
         let ret = result.unwrap().unwrap();
         println!("{}", ret.to_string());

@@ -39,10 +39,11 @@ impl From<JsonError> for OpaClientError {
 }
 
 #[async_trait(?Send)]
-pub trait OpenPolicyAgentClient {
+pub trait OpenPolicyAgentClient<'a> {
     /// Query a policy given `input` data and a policy path.
     async fn query<I: Serialize, D: Serialize, O: DeserializeOwned>(
         &mut self,
+        rule: &'a str,
         input: &I,
         data: &D,
     ) -> Result<Option<O>, OpaClientError>;
