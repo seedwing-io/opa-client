@@ -29,7 +29,8 @@ async fn test_query() {
         let docker = Docker::connect_with_socket(&socket, 120, API_DEFAULT_VERSION).unwrap();
         let container_client = Http::new(docker);
         let _opa = container_client.run(simple_opa_server()).await;
-        let mut client = OpenPolicyAgentHttpClient::new(opa_server_url);
+        let mut client =
+            OpenPolicyAgentHttpClient::new(opa_server_url.as_str().as_bytes()).unwrap();
 
         let input = MyInput {
             user: "bob".to_string(),

@@ -11,12 +11,6 @@ pub struct OpenPolicyAgentWasmClient {
 }
 
 impl<'a> OpenPolicyAgentWasmClient {
-    pub fn new(wasm: &'a [u8]) -> Self {
-        Self {
-            evaluator: Evaluator::new(wasm, Default::default()).unwrap(),
-        }
-    }
-
     pub fn entrypoints(&mut self) -> Result<HashMap<String, i32>, OpaClientError> {
         self.evaluator
             .entrypoints()
@@ -26,6 +20,12 @@ impl<'a> OpenPolicyAgentWasmClient {
 
 #[async_trait(?Send)]
 impl<'a> OpenPolicyAgentClient<'a> for OpenPolicyAgentWasmClient {
+    fn new(wasm: &'a [u8]) -> Result<Self, OpaClientError> {
+        Ok(Self {
+            evaluator: Evaluator::new(wasm, Default::default()).unwrap(),
+        })
+    }
+
     async fn query<I, D, O>(
         &mut self,
         policy: &'a str,
@@ -69,7 +69,7 @@ mod tests {
         let example_path = Path::new(&manifest_dir).join("example");
         let wasm_path = Path::new(&example_path).join("license.wasm");
         let wasm: [u8; 131650] = to_array(fs::read(wasm_path).unwrap());
-        let mut client = OpenPolicyAgentWasmClient::new(&wasm);
+        let mut client = OpenPolicyAgentWasmClient::new(&wasm).unwrap();
 
         let input_str =
             fs::read_to_string(Path::new(&example_path).join("licenses-input.txt")).unwrap();
@@ -89,7 +89,7 @@ mod tests {
         let example_path = Path::new(&manifest_dir).join("example");
         let wasm_path = Path::new(&example_path).join("license.wasm");
         let wasm: [u8; 131650] = to_array(fs::read(wasm_path).unwrap());
-        let mut client = OpenPolicyAgentWasmClient::new(&wasm);
+        let mut client = OpenPolicyAgentWasmClient::new(&wasm).unwrap();
         assert_eq!(
             client.entrypoints().unwrap().contains_key("license/allow"),
             true

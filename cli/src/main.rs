@@ -37,7 +37,7 @@ async fn main() {
     let args = Args::parse();
 
     let wasm = fs::read(&args.wasm).unwrap();
-    let mut client = OpenPolicyAgentWasmClient::new(&wasm);
+    let mut client = OpenPolicyAgentWasmClient::new(&wasm).unwrap();
 
     if args.print_entrypoints {
         let entrypoints = client.entrypoints();
