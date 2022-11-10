@@ -14,7 +14,7 @@ pub struct Input<I: Serialize> {
 
 #[derive(Serialize, Debug)]
 pub struct Data<I: Serialize> {
-    data: I,
+    pub data: I,
 }
 
 #[derive(Deserialize)]
