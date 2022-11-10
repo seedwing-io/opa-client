@@ -52,9 +52,7 @@ async fn main() {
         exit(1);
     }
 
-    let input_str = args
-        .input
-        .map_or_else(|| read_from_stdin(), |f| read_from_file(f));
+    let input_str = args.input.map_or_else(read_from_stdin, read_from_file);
     let input: serde_json::Value =
         serde_json::from_str(&input_str).expect("data json does not have correct format.");
 
@@ -65,16 +63,15 @@ async fn main() {
     let result: Result<Option<serde_json::Value>, OpaClientError> = client
         .query(&args.entry_point.unwrap(), &input, &data)
         .await;
-    if result.is_ok() {
-        let ret = result.unwrap().unwrap();
-        println!("{}", ret.to_string());
+    if let Ok(r) = result {
+        println!("{}", r.unwrap());
     } else {
         println!("{{}}");
     }
 }
 
 fn read_from_file_arg(s: Option<String>) -> String {
-    s.map_or(String::from("{}"), |p| read_from_file(p))
+    s.map_or(String::from("{}"), read_from_file)
 }
 
 fn read_from_file(s: String) -> String {
@@ -82,15 +79,15 @@ fn read_from_file(s: String) -> String {
 }
 
 fn read_from_stdin() -> String {
-    let mut lines = io::stdin().lock().lines();
+    let lines = io::stdin().lock().lines();
     let mut input = String::new();
-    while let Some(line) = lines.next() {
+    for line in lines {
         let last_input = line.unwrap();
-        if last_input.len() == 0 {
+        if last_input.is_empty() {
             break;
         }
-        if input.len() > 0 {
-            input.push_str("\n");
+        if !input.is_empty() {
+            input.push('\n');
         }
         input.push_str(&last_input);
     }
