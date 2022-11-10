@@ -48,7 +48,7 @@ impl From<Utf8Error> for OpaClientError {
 }
 
 #[async_trait(?Send)]
-pub trait OpenPolicyAgentClient<'a> {
+pub trait OpenPolicyAgentClient {
     /// Instantiate a new instance of a struct implementing this trait.
     fn new(bytes: &[u8]) -> Result<Self, OpaClientError>
     where
@@ -57,7 +57,7 @@ pub trait OpenPolicyAgentClient<'a> {
     /// Query a policy given `input` data and a policy path.
     async fn query<I: Serialize, D: Serialize, O: DeserializeOwned>(
         &mut self,
-        rule: &'a str,
+        rule: &str,
         input: &I,
         data: &D,
     ) -> Result<Option<O>, OpaClientError>;
