@@ -21,6 +21,7 @@ impl From<::reqwest::Error> for OpaClientError {
 
 /// Client to communicate and interact with an OpenPolicyAgent (OPA) server
 /// over HTTP(S).
+#[derive(Clone)]
 pub struct OpenPolicyAgentHttpClient {
     client: Client,
     url: Url,
