@@ -15,5 +15,5 @@ The setup as it stands today is through using Unix domain sockets. If using some
 non-default socket location, `DOCKER_SOCKET` environment variable should be set,
 pointing to the control endpoint for Docker or Podman. For podman on Linux this
 can be configured by running the
-link:.library/github/workflows/scripts/podman-setup.sh[podman-setup.sh]
+link:./library/github/workflows/scripts/podman-setup.sh[podman-setup.sh]
 
