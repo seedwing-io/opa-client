@@ -1,5 +1,4 @@
 use crate::{OpaClientError, OpenPolicyAgentClient};
-use async_trait::async_trait;
 use policy_evaluator::burrego::Evaluator;
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
@@ -18,7 +17,6 @@ impl OpenPolicyAgentWasmClient {
     }
 }
 
-#[async_trait(?Send)]
 impl OpenPolicyAgentClient for OpenPolicyAgentWasmClient {
     fn new(wasm: &[u8]) -> Result<Self, OpaClientError> {
         Ok(Self {

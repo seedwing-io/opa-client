@@ -1,5 +1,4 @@
 use crate::{Input, OpaClientError, OpenPolicyAgentClient, Output};
-use async_trait::async_trait;
 use reqwest::Client;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -27,7 +26,6 @@ pub struct OpenPolicyAgentHttpClient {
     url: Url,
 }
 
-#[async_trait(?Send)]
 impl OpenPolicyAgentClient for OpenPolicyAgentHttpClient {
     /// Construct a new client given an endpoint.
     fn new(bytes: &[u8]) -> Result<Self, OpaClientError> {

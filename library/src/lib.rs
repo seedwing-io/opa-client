@@ -1,4 +1,5 @@
-use async_trait::async_trait;
+#![feature(async_fn_in_trait)]
+#![allow(incomplete_features)]
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_json::Error as JsonError;
@@ -47,7 +48,6 @@ impl From<Utf8Error> for OpaClientError {
     }
 }
 
-#[async_trait(?Send)]
 pub trait OpenPolicyAgentClient {
     /// Instantiate a new instance of a struct implementing this trait.
     fn new(bytes: &[u8]) -> Result<Self, OpaClientError>
