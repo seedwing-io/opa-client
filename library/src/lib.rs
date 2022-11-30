@@ -7,7 +7,7 @@ use std::str::Utf8Error;
 use thiserror::Error;
 
 pub mod http;
-pub mod local_wasm;
+pub mod wasm;
 
 #[derive(Serialize, Debug)]
 pub struct Input<I: Serialize> {

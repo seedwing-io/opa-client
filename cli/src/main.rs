@@ -1,5 +1,5 @@
 use clap::Parser;
-use opa_client::local_wasm::OpenPolicyAgentWasmClient;
+use opa_client::wasm::OpenPolicyAgentWasmClient;
 use opa_client::{OpaClientError, OpenPolicyAgentClient};
 use std::fs;
 use std::io::{self, BufRead};
