@@ -5,8 +5,8 @@ policy rules in wasm modules.
 
 The motivation for using OPA's ability to compile policies into wasm is that the
 same wasm policy can be used with Rust, Node.js, (and other wasm runtimes), and
-at the same wasm module can be used in a OPA server running somewhere as part of
-a CI/CD pipeline, or in a Kubernetes gatekeeper.
+that the same wasm module can be used in a OPA server running somewhere as part
+of a CI/CD pipeline, or in a Kubernetes gatekeeper.
 
 
 ## Policy Querying
